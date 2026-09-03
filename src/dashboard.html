@@ -179,7 +179,7 @@ th,td{text-align:left;padding:12px;border-bottom:1px solid #edf0f3;white-space:n
   <details class="commercial-group"><summary>USDT 收款 <small>登记链上收款</small></summary><div class="group-body"><div id="payments" class="payment-cards"></div><div class="row compact-row"><input id="paymentOrder" placeholder="订单 ID"><input id="paymentAmount" type="number" step="0.01" placeholder="金额 USDT"><input id="paymentTxid" placeholder="链上 TXID"><select id="paymentStatus"><option value="paid">已收款</option><option value="pending">待确认</option></select><button id="addPayment">登记收款</button></div></div></details>
   <details class="commercial-group"><summary>广告排期 <small>按日期查看投放安排</small></summary><div class="group-body"><div id="adCalendar"></div></div></details>
   <details class="commercial-group"><summary>内容库与 Hash 去重 <small>避免重复内容</small></summary><div class="group-body"><div id="contentItems"></div><div class="row compact-row"><input id="contentTitle" placeholder="标题"><input id="contentCategory" placeholder="分类"><input id="contentTags" placeholder="标签，逗号分隔"></div><textarea id="contentBody" placeholder="输入内容，系统会自动计算 Hash 并检测重复"></textarea><button id="addContent">保存内容</button></div></details></div></section><section id="audit" class="page hidden"><div class="card"><h2>操作审计</h2><div id="auditList"></div></div></section>
-<section id="admins" class="page hidden"><div class="card"><h2>管理员</h2><div id="adminList"></div>
+<section id="admins" class="page hidden"><div class="card"><div class="section-heading"><div><h2>管理员</h2><p class="muted">只有 owner 可以新增、修改或停用管理员。</p></div></div><div id="adminList"></div>
 <div class="row" style="margin-top:15px"><input id="adminId" placeholder="Telegram numeric user ID"><select id="adminRole"><option value="viewer">viewer</option><option value="editor">editor</option><option value="owner">owner</option></select><button id="addAdmin">添加/更新</button></div></div></section>
 </main>
 </div>
@@ -205,7 +205,7 @@ async function load(p){
     if(p==="commercial"){loadCommercial()} if(p==="commercial"){loadCommercial()}
     if(p==="audit"){let d=await api("/audit");$("#auditList").innerHTML=table(d.rows,["管理员","操作","目标","详情","时间"],x=>`<tr><td>${x.admin_id}</td><td>${esc(x.action)}</td><td>${esc((x.target_type||"")+" "+(x.target_id||""))}</td><td>${esc(x.detail||"")}</td><td>${esc(x.created_at)}</td></tr>`)}
     if(p==="media"){let st=await api("/media/status");$("#mediaStatus").textContent=st.enabled?"R2 状态：已启用":"R2 状态：未启用，媒体上传暂不可用";$("#uploadMedia").disabled=!st.enabled;let d=await api("/media");$("#mediaList").innerHTML=table(d.rows,["ID","类型","文件名","MIME","大小","创建时间"],x=>`<tr><td>#${x.id}</td><td>${esc(x.kind)}</td><td>${esc(x.file_name||"-")}</td><td>${esc(x.mime_type||"-")}</td><td>${x.size_bytes||"-"}</td><td>${esc(x.created_at)}</td></tr>`)}
-    if(p==="admins"){let d=await api("/roles");$("#adminList").innerHTML=table(d.rows,["User ID","角色","状态"],x=>`<tr><td>${x.user_id}</td><td>${esc(x.role)}</td><td>${x.enabled?"启用":"停用"}</td></tr>`)}
+    if(p==="admins"){let d=await api("/roles");$("#adminList").innerHTML=table(d.rows,["User ID","角色","状态","操作"],x=>`<tr><td>${x.user_id}</td><td><span class="badge role-${esc(x.role)}">${esc(x.role)}</span></td><td><span class="badge ${x.enabled?'status-on':'status-off'}">${x.enabled?'启用':'停用'}</span></td><td>${x.enabled?`<button class="danger small" onclick="disableAdmin(${x.user_id})">停用</button>`:`<button class="secondary small" onclick="enableAdmin(${x.user_id})">恢复</button>`}</td></tr>`)}
   }catch(e){toast(e.message)}
 }
 function renderTargets(){if(!channels.length){$("#targetChannels").innerHTML='<span class=muted>暂无频道，请先添加频道</span>';return}$("#targetChannels").innerHTML=channels.map(x=>`<label class=check><input type=checkbox value="${esc(x.chat_id)}" checked> ${esc(x.title||x.chat_id)}</label>`).join("")}
@@ -215,7 +215,9 @@ async function create(status){const targets=$$("#targetChannels input:checked").
 $("#saveDraft").onclick=async()=>{try{await create("draft");toast("已保存草稿");page("drafts")}catch(e){toast(e.message)}}
 $("#publishNow").onclick=async()=>{try{await create("publish");toast("已发布");page("history")}catch(e){toast(e.message)}}
 $("#scheduleBtn").onclick=async()=>{if(!$("#scheduledAt").value){toast("请选择时间");return}try{await create("scheduled");toast("排期创建成功");page("schedule")}catch(e){toast(e.message)}}
-$("#addAdmin").onclick=async()=>{try{await api("/roles",{method:"POST",body:JSON.stringify({user_id:Number($("#adminId").value),role:$("#adminRole").value})});toast("管理员已更新");load("admins")}catch(e){toast(e.message)}}
+$("#addAdmin").onclick=async()=>{try{await api("/roles",{method:"POST",body:JSON.stringify({user_id:Number($("#adminId").value),role:$("#adminRole").value})});$("#adminId").value="";toast("管理员已新增/更新");load("admins")}catch(e){toast(e.message)}}
+async function disableAdmin(id){if(!confirm("确定停用管理员 #"+id+"？"))return;try{await api("/roles/"+id,{method:"DELETE"});toast("管理员已停用");load("admins")}catch(e){toast(e.message)}}
+async function enableAdmin(id){try{await api("/roles/"+id+"/enable",{method:"POST"});toast("管理员已恢复");load("admins")}catch(e){toast(e.message)}}
 async function publish(id){try{await api("/drafts/"+id+"/publish",{method:"POST"});toast("发布成功");load("drafts")}catch(e){toast(e.message)}}
 async function delDraft(id){if(!confirm("删除草稿？"))return;try{await api("/drafts/"+id,{method:"DELETE"});toast("已删除");load("drafts")}catch(e){toast(e.message)}}
 async function cancelSchedule(id){if(!confirm("取消排期？"))return;try{await api("/scheduled/"+id,{method:"DELETE"});toast("已取消");load("schedule")}catch(e){toast(e.message)}}
