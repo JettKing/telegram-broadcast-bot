@@ -1,0 +1,13 @@
+{
+  "name":"xph-telegram-broadcast-bot",
+  "private":true,
+  "version":"2.8.0",
+  "type":"module",
+  "scripts":{
+    "dev":"wrangler dev",
+    "deploy":"wrangler deploy",
+    "db:migrate:remote":"wrangler d1 migrations apply DB --remote",
+    "db:migrate:local":"wrangler d1 migrations apply DB --local"
+  },
+  "devDependencies":{"wrangler":"^4.0.0"}
+}
