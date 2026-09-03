@@ -3,7 +3,7 @@ const DASHBOARD = "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n<meta charset
 const headers={"content-type":"application/json; charset=utf-8"};
 const json=(x,s=200)=>new Response(JSON.stringify(x),{status:s,headers});
 const now=()=>new Date().toISOString().slice(0,19).replace("T"," ");
-const html=(x,s=200)=>new Response(x,{status:s,headers:{"content-type":"text/html; charset=utf-8"}});
+const html=(x,s=200)=>new Response(x,{status:s,headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store, no-cache, must-revalidate, max-age=0","pragma":"no-cache","expires":"0"}});
 async function tg(env,m,p={}){const r=await fetch(`https://api.telegram.org/bot${env.BOT_TOKEN}/${m}`,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(p)});const d=await r.json();if(!d.ok)throw Error(d.description||m);return d.result}
 async function ensureBootstrapAdmin(env){
   const configured=String(env.ADMIN_USER_ID||"").trim();
