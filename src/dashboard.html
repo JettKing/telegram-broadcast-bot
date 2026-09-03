@@ -80,7 +80,7 @@ th,td{text-align:left;padding:12px;border-bottom:1px solid #edf0f3;white-space:n
   .top-left{min-width:0}.top-left h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   aside#sideMenu{position:fixed;z-index:100;left:0;top:0;bottom:0;right:auto;width:min(82vw,300px);height:100vh;padding:20px 14px;background:linear-gradient(180deg,#111827,#1e293b);transform:translateX(-105%);transition:transform .24s ease;box-shadow:12px 0 34px #0005}
   aside#sideMenu.open{transform:translateX(0)}aside#sideMenu .brand{display:block;padding:8px 10px 22px;font-size:18px}
-  aside#sideMenu nav{display:flex;flex-direction:column;gap:4px;height:auto;overflow:visible;padding:0}
+  aside#sideMenu nav{display:flex;flex-direction:column;gap:4px;height:auto;max-height:calc(100vh - 78px);overflow-y:auto;overflow-x:hidden;padding:0 2px 12px 0;-webkit-overflow-scrolling:touch}
   aside#sideMenu nav button{flex:initial;width:100%;min-height:46px;padding:11px 13px;text-align:left;font-size:14px;border-radius:12px;white-space:nowrap}
   .menu-backdrop{display:block;position:fixed;z-index:90;inset:0;background:#0f172a66;opacity:0;pointer-events:none;transition:opacity .2s}.menu-backdrop.open{opacity:1;pointer-events:auto}
   body{padding-bottom:18px}.top{margin:-12px -12px 14px;padding:10px 12px}  .top .danger{display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1}
