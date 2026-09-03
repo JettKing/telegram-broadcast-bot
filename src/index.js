@@ -33,7 +33,7 @@ async function api(request,env,uid,path,body){
     const recent=(await env.DB.prepare("SELECT id,status,content_type,channel_id,scheduled_at,published_at,created_at FROM broadcasts ORDER BY id DESC LIMIT 20").all()).results||[];
     return json({stats:{total:s.total||0,published:s.published||0,scheduled:s.scheduled||0,drafts:d.drafts||0},recent})
   }
-  if(path==="/channels")return json({channels:await channels(env)});
+  if(path==="/channels"&&request.method==="GET")return json({channels:await channels(env)});
   if(path==="/channels"&&request.method==="POST"){
     if(await v25Role(env,uid)!=="owner")return json({error:"仅 owner 可管理频道"},403);
     if(!body.chat_id)return json({error:"chat_id 必填"},400);
