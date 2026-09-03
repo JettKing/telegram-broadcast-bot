@@ -30,8 +30,11 @@ async function api(request,env,uid,path,body){
     if(await v25Role(env,uid)!=="owner")return json({error:"仅 owner 可配置 Bot 菜单"},403);
     const menuUrl=new URL(request.url).origin+"/admin";
     const result=await tg(env,"setChatMenuButton",{menu_button:{type:"web_app",text:"控制台",web_app:{url:menuUrl}}});
+    const commands=await tg(env,"setMyCommands",{commands:[
+      {command:"start",description:"打开欢迎语和控制台"},{command:"help",description:"查看使用帮助"},{command:"channels",description:"查看频道列表"},{command:"broadcast",description:"打开新建广播"},{command:"history",description:"查看广播记录"},{command:"contact",description:"联系客服"}
+    ]});
     await audit(env,uid,"set_bot_menu","bot",null,menuUrl);
-    return json({ok:true,menu_url:menuUrl,result});
+    return json({ok:true,menu_url:menuUrl,result,commands});
   }
   if(path==="/dashboard"){
     const s=await env.DB.prepare(`SELECT COUNT(*) total,
@@ -280,7 +283,15 @@ async function authFromHeader(request,env){
 }
 async function bot(env,m){
   const uid=m.from?.id,cid=m.chat?.id;if(!await isAdmin(env,uid))return;
-  if(m.text==="/start"){await tg(env,"sendMessage",{chat_id:cid,text:"📢 徐胖虎资源社｜广播控制中心\n\n请直接发送需要广播的内容，或打开 Web 控制台。"});return}
+  const command=String(m.text||"").trim().split(/\s+/)[0].split("@")[0].toLowerCase();
+  const menuUrl=`${env.PUBLIC_BASE_URL||"https://xph-telegram-broadcast-bot.huaaplus.workers.dev"}/admin`;
+  if(command==="/start"){await tg(env,"sendMessage",{chat_id:cid,text:"欢迎使用徐胖虎资源社 Bot！\n这里可以快速管理频道内容、创建广播，并查看发布状态。\n点击下方菜单进入「控制台」。",reply_markup:{inline_keyboard:[[{text:"打开控制台",web_app:{url:menuUrl}}]]}});return}
+  if(command==="/help"){await tg(env,"sendMessage",{chat_id:cid,text:"使用帮助\n发送文字或媒体内容，可保存为广播草稿。\n进入「控制台」可以创建广播、选择频道、设置排期和查看历史记录。"});return}
+  if(command==="/channels"){const rows=await env.DB.prepare("SELECT title,chat_id,enabled FROM channels ORDER BY id").all();const text=(rows.results||[]).map(x=>`${x.enabled?"✅":"⏸️"} ${x.title||x.chat_id}（${x.chat_id}）`).join("\n")||"暂无已绑定频道。";await tg(env,"sendMessage",{chat_id:cid,text:"频道列表\n"+text});return}
+  if(command==="/broadcast"){await tg(env,"sendMessage",{chat_id:cid,text:"新建广播\n请点击下方按钮进入控制台创建广播。",reply_markup:{inline_keyboard:[[{text:"打开控制台",web_app:{url:menuUrl}}]]}});return}
+  if(command==="/history"){const r=await env.DB.prepare("SELECT COUNT(*) AS total,SUM(status='published') AS published,SUM(status='scheduled') AS scheduled FROM broadcasts").first();await tg(env,"sendMessage",{chat_id:cid,text:`广播记录\n总记录：${r?.total||0}\n已发布：${r?.published||0}\n待排期：${r?.scheduled||0}`});return}
+  if(command==="/contact"){await tg(env,"sendMessage",{chat_id:cid,text:"联系客服\n如需帮助，请联系管理员。"});return}
+  if(m.text?.startsWith("/")){await tg(env,"sendMessage",{chat_id:cid,text:"暂时不支持该指令，请发送 /help 查看可用功能。"});return}
   if(!m.text?.startsWith("/")){
     const r=await env.DB.prepare("INSERT INTO drafts(admin_id,source_chat_id,source_message_id,content_type) VALUES(?,?,?,?)").bind(uid,cid,m.message_id,m.photo?"photo":m.video?"video":m.document?"document":"text").run();
     await tg(env,"sendMessage",{chat_id:cid,text:`📝 已保存草稿 #${r.meta.last_row_id}`});
