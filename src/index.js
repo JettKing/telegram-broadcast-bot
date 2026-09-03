@@ -25,6 +25,7 @@ async function publishRecord(env,record){
   await env.DB.prepare("UPDATE broadcasts SET status='published',channel_message_id=?,published_at=?,error_message=NULL WHERE id=?").bind(s.message_id,now(),record.id).run();
 }
 async function api(request,env,uid,path,body){
+  const u=new URL(request.url);
   if(path==="/dashboard"){
     const s=await env.DB.prepare(`SELECT COUNT(*) total,
       SUM(status='published') published,SUM(status='scheduled') scheduled FROM broadcasts`).first();
@@ -361,7 +362,7 @@ export default {
   if(u.pathname.startsWith("/api/")){
     const uid=await authFromHeader(request,env);if(!uid)return json({error:"Unauthorized"},401);
     let body={};if(request.method!=="GET"){try{body=await request.json()}catch{}}
-    return api(request,env,uid,u.pathname.slice(4),body);
+    try{return await api(request,env,uid,u.pathname.slice(4),body)}catch(e){console.error(e);return json({error:e.message||"Internal Server Error"},500)}
   }
   if(request.method==="POST"&&u.pathname==="/telegram/webhook"){const up=await request.json();try{if(up.message)await bot(env,up.message)}catch(e){console.error(e)}return json({ok:true})}
   return new Response("Not Found",{status:404})
