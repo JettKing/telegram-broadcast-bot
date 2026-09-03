@@ -142,7 +142,7 @@ th,td{text-align:left;padding:12px;border-bottom:1px solid #edf0f3;white-space:n
 
   <section id="drafts" class="page hidden"><div class="card"><h2>草稿箱</h2><div id="draftList"></div></div></section>
   <section id="schedule" class="page hidden"><div class="card"><h2>排期中心</h2><div id="scheduleList"></div></div></section>
-  <section id="channels" class="page hidden"><div class="card"><h2>频道管理</h2><div id="channelList"></div></div></section>
+  <section id="channels" class="page hidden"><div class="card"><h2>频道管理</h2><p class="muted">先把机器人添加为频道管理员，再填写频道用户名或 Chat ID。</p><div class="row"><input id="channelChatId" placeholder="@频道用户名 或数字 Chat ID"><input id="channelTitle" placeholder="频道名称（可选）"><button id="addChannel">新增频道</button></div><div id="channelList"></div></div></section>
   <section id="history" class="page hidden"><div class="card"><h2>广播历史</h2><div id="historyList"></div></div></section>
   <section id="media" class="page hidden"><div class="card"><h2>媒体库</h2>
 <p class="muted" id="mediaStatus">R2 状态：由 Worker 自动检测。</p>
@@ -175,6 +175,7 @@ async function api(path,opt={}){const r=await fetch("/api"+path,{credentials:"in
 function page(name){$$(".page").forEach(x=>x.classList.add("hidden"));$("#"+name).classList.remove("hidden");$$("nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===name));$("#title").textContent={dashboard:"仪表盘",broadcast:"新建广播",drafts:"草稿箱",schedule:"排期中心",channels:"频道管理",history:"广播历史",audit:"操作审计",media:"媒体库",builder:"广播编排",metrics:"发送统计",commercial:"商业中心",admins:"管理员"}[name]||name;load(name)}
 $$("nav button").forEach(b=>b.onclick=()=>page(b.dataset.page));$("#refresh").onclick=()=>load(document.querySelector("nav button.active").dataset.page);
 function table(rows,heads,render){if(!rows.length)return '<div class="muted">暂无数据</div>';return `<div class="table"><table><tr>${heads.map(h=>`<th>${h}</th>`).join("")}</tr>${rows.map(render).join("")}</table></div>`}
+$("#addChannel").onclick=async()=>{const chat_id=$("#channelChatId").value.trim(),title=$("#channelTitle").value.trim();if(!chat_id){toast("请填写频道用户名或 Chat ID");return}try{await api("/channels",{method:"POST",body:JSON.stringify({chat_id,title,enabled:true})});$("#channelChatId").value="";$("#channelTitle").value="";toast("频道已添加");load("channels")}catch(e){toast(e.message)}};
 async function load(p){
   try{
     if(p==="dashboard"){let d=await api("/dashboard");$("#sTotal").textContent=d.stats.total;$("#sDraft").textContent=d.stats.drafts;$("#sScheduled").textContent=d.stats.scheduled;$("#sPublished").textContent=d.stats.published;$("#recent").innerHTML=table(d.recent,["ID","状态","类型","频道","时间"],x=>`<tr><td>#${x.id}</td><td><span class=badge>${esc(x.status)}</span></td><td>${esc(x.content_type)}</td><td>${esc(x.channel_id)}</td><td>${esc(x.published_at||x.scheduled_at||x.created_at)}</td></tr>`)}
