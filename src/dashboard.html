@@ -85,6 +85,8 @@ th,td{text-align:left;padding:12px;border-bottom:1px solid #edf0f3;white-space:n
   .menu-backdrop{display:block;position:fixed;z-index:90;inset:0;background:#0f172a66;opacity:0;pointer-events:none;transition:opacity .2s}.menu-backdrop.open{opacity:1;pointer-events:auto}
   body{padding-bottom:18px}.top{margin:-12px -12px 14px;padding:10px 12px}.top .danger{display:inline-flex}
 }
+.section-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.section-heading h2{margin-top:0}.section-heading p{margin:4px 0 0}.step-chip{flex:none;padding:6px 9px;border-radius:999px;background:#eef2ff;color:#4f46e5;font-size:12px;font-weight:700}.broadcast-layout{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:18px}.broadcast-content{min-height:260px}.compact-fold{margin-top:16px;border-top:1px solid #edf0f3;padding-top:12px}.compact-fold summary,.commercial-group summary{cursor:pointer;list-style:none;font-weight:750;color:#253247;padding:4px 0}.compact-fold summary::-webkit-details-marker,.commercial-group summary::-webkit-details-marker{display:none}.compact-fold summary:after,.commercial-group summary:after{content:'＋';float:right;color:#64748b}.compact-fold[open] summary:after,.commercial-group[open] summary:after{content:'－'}.action-bar{display:flex;gap:10px;margin-top:18px;padding-top:14px;border-top:1px solid #edf0f3}.action-bar button{flex:1}.full-action{width:100%;margin-top:16px}.channel-picker{display:grid;gap:8px}.channel-picker .check{padding:10px 12px;border:1px solid #e5eaf0;border-radius:10px;background:#fafcff}.commercial-group{margin-top:10px;border:1px solid #e7edf3;border-radius:14px;padding:0 14px;background:#fff}.commercial-group summary{padding:15px 0}.commercial-group summary small{display:block;color:#94a3b8;font-size:12px;font-weight:500;margin-top:3px}.group-body{padding:0 0 14px}.compact-row{gap:8px}.compact-row>input,.compact-row>select{flex:1 1 180px}
+@media(max-width:900px){.broadcast-layout{display:flex;flex-direction:column;gap:12px}.broadcast-main{order:1}.broadcast-settings{order:2}.broadcast-content{min-height:210px}.section-heading{align-items:center}.section-heading h2{font-size:18px}.action-bar{position:sticky;bottom:0;background:rgba(255,255,255,.96);margin:16px -14px -14px;padding:12px 14px;z-index:10}.compact-fold{margin-top:14px}.commercial-shell{padding:12px}.commercial-shell>.section-heading{padding:2px 2px 5px}.commercial-group{padding:0 12px}.commercial-group summary{padding:14px 0}.group-body{padding-bottom:12px}.compact-row>input,.compact-row>select{flex:1 1 100%}.full-action{min-height:46px}.stats{margin:12px 0 14px}}
 </style>
 </head>
 <body>
@@ -121,32 +123,29 @@ th,td{text-align:left;padding:12px;border-bottom:1px solid #edf0f3;white-space:n
   </section>
 
   <section id="broadcast" class="page hidden">
-    <div class="editor">
-      <div class="card">
-        <h2>新建广播</h2>
+    <div class="broadcast-layout">
+      <div class="card broadcast-main">
+        <div class="section-heading"><div><h2>新建广播</h2><p class="muted">先写内容，再选择频道发布。</p></div><span class="step-chip">1 / 3</span></div>
         <label>广播内容</label>
-        <textarea id="content" placeholder="输入文字内容……"></textarea>
-        <label>媒体 file_id / R2 URL（可选）</label>
-        <input id="mediaUrl" type="text" placeholder="预留媒体发布接口">
-        <label>按钮</label>
-        <div id="buttons"></div>
-        <button class="secondary" id="addButton">＋ 添加按钮</button>
-        <div class="row" style="margin-top:20px">
-          <button id="saveDraft">保存草稿</button>
-          <button id="publishNow">立即发布</button>
-        </div>
+        <textarea id="content" class="broadcast-content" placeholder="输入文字内容……"></textarea>
+        <details class="compact-fold"><summary>添加按钮或媒体</summary>
+          <label>媒体 file_id / R2 URL（可选）</label>
+          <input id="mediaUrl" type="text" placeholder="R2 未启用时暂不可上传媒体">
+          <label>按钮</label><div id="buttons"></div>
+          <button class="secondary" id="addButton">＋ 添加按钮</button>
+        </details>
+        <div class="action-bar"><button class="secondary" id="saveDraft">保存草稿</button><button id="publishNow">立即发布</button></div>
       </div>
-      <div class="card">
-        <h2>发布设置</h2>
-        <label>频道</label>
-        <div id="targetChannels"></div>
-        <label>发布时间</label>
-        <input id="scheduledAt" type="datetime-local">
-        <label class="check"><input id="pin" type="checkbox"> 发布后自动置顶</label>
-        <label class="check"><input id="silent" type="checkbox"> 静默发布</label>
-        <h3>实时预览</h3>
-        <div class="preview" id="preview">等待输入内容……</div>
-        <button class="secondary" id="scheduleBtn" style="margin-top:12px;width:100%">创建定时广播</button>
+      <div class="card broadcast-settings">
+        <div class="section-heading"><div><h2>发布设置</h2><p class="muted">选择目标后即可发布。</p></div><span class="step-chip">2 / 3</span></div>
+        <label>目标频道</label><div id="targetChannels" class="channel-picker"></div>
+        <details class="compact-fold" open><summary>高级发布设置</summary>
+          <label>发布时间</label><input id="scheduledAt" type="datetime-local">
+          <label class="check"><input id="pin" type="checkbox"> 发布后自动置顶</label>
+          <label class="check"><input id="silent" type="checkbox"> 静默发布</label>
+        </details>
+        <details class="compact-fold preview-fold"><summary>实时预览</summary><div class="preview" id="preview">等待输入内容……</div></details>
+        <button class="secondary full-action" id="scheduleBtn">创建定时广播</button>
       </div>
     </div>
   </section>
@@ -167,14 +166,14 @@ th,td{text-align:left;padding:12px;border-bottom:1px solid #edf0f3;white-space:n
 <h3>媒体 ID</h3><div id="builderMedia" class="dropzone"></div>
 <div class="row"><input id="builderMediaId" placeholder="媒体库 ID"><button id="addMedia">添加媒体</button><button id="saveBuilder">保存草稿</button></div></div></section>
 <section id="metrics" class="page hidden"><div class="card"><h2>📊 发送统计</h2><div id="metricsList"></div></div></section>
-  <section id="commercial" class="page hidden"><div class="card"><h2>💰 商业中心</h2>
+  <section id="commercial" class="page hidden"><div class="card commercial-shell"><div class="section-heading"><div><h2>💰 商业中心</h2><p class="muted">客户、套餐、订单和收款统一管理。</p></div><span class="step-chip">运营</span></div>
   <div class="stats"><div><b id="finReceived">0</b><span>已收款 USDT</span></div><div><b id="finPending">0</b><span>待收款 USDT</span></div><div><b id="finOrders">0</b><span>订单数</span></div></div>
-  <h3>广告客户</h3><div id="customers"></div><div class="row"><input id="custName" placeholder="客户名称"><input id="custTg" placeholder="Telegram"><input id="custContact" placeholder="联系方式"><button id="addCustomer">新增客户</button></div>
-  <h3>广告套餐</h3><div id="packages"></div><div class="row"><input id="pkgName" placeholder="套餐名称"><input id="pkgPrice" type="number" step="0.01" placeholder="价格 USDT"><input id="pkgDays" type="number" placeholder="时长（天）"><input id="pkgDesc" placeholder="套餐说明"><button id="addPackage">新增套餐</button></div>
-  <h3>广告订单</h3><div id="orders"></div><div class="row"><input id="orderCustomer" placeholder="客户 ID"><input id="orderPackage" placeholder="套餐 ID（可选）"><input id="orderAmount" type="number" step="0.01" placeholder="金额 USDT"><input id="orderStart" type="datetime-local"><input id="orderEnd" type="datetime-local"><button id="addOrder">创建订单</button></div>
-  <h3>USDT 收款记录</h3><div id="payments"></div><div class="row"><input id="paymentOrder" placeholder="订单 ID"><input id="paymentAmount" type="number" step="0.01" placeholder="金额 USDT"><input id="paymentTxid" placeholder="链上 TXID"><select id="paymentStatus"><option value="paid">已收款</option><option value="pending">待确认</option></select><button id="addPayment">登记收款</button></div>
-  <h3>广告排期</h3><div id="adCalendar"></div>
-  <h3>内容库与 Hash 去重</h3><div id="contentItems"></div><div class="row"><input id="contentTitle" placeholder="标题"><input id="contentCategory" placeholder="分类"><input id="contentTags" placeholder="标签，逗号分隔"></div><textarea id="contentBody" placeholder="内容"></textarea><button id="addContent">保存内容</button></div></section><section id="audit" class="page hidden"><div class="card"><h2>操作审计</h2><div id="auditList"></div></div></section>
+  <details class="commercial-group" open><summary>客户管理 <small>客户资料与联系方式</small></summary><div class="group-body"><div id="customers"></div><div class="row compact-row"><input id="custName" placeholder="客户名称"><input id="custTg" placeholder="Telegram"><input id="custContact" placeholder="联系方式"><button id="addCustomer">新增客户</button></div></div></details>
+  <details class="commercial-group"><summary>广告套餐 <small>价格与投放时长</small></summary><div class="group-body"><div id="packages"></div><div class="row compact-row"><input id="pkgName" placeholder="套餐名称"><input id="pkgPrice" type="number" step="0.01" placeholder="价格 USDT"><input id="pkgDays" type="number" placeholder="时长（天）"><input id="pkgDesc" placeholder="套餐说明"><button id="addPackage">新增套餐</button></div></div></details>
+  <details class="commercial-group"><summary>广告订单 <small>创建和查看订单</small></summary><div class="group-body"><div id="orders"></div><div class="row compact-row"><input id="orderCustomer" placeholder="客户 ID"><input id="orderPackage" placeholder="套餐 ID（可选）"><input id="orderAmount" type="number" step="0.01" placeholder="金额 USDT"><input id="orderStart" type="datetime-local"><input id="orderEnd" type="datetime-local"><button id="addOrder">创建订单</button></div></div></details>
+  <details class="commercial-group"><summary>USDT 收款 <small>登记链上收款</small></summary><div class="group-body"><div id="payments"></div><div class="row compact-row"><input id="paymentOrder" placeholder="订单 ID"><input id="paymentAmount" type="number" step="0.01" placeholder="金额 USDT"><input id="paymentTxid" placeholder="链上 TXID"><select id="paymentStatus"><option value="paid">已收款</option><option value="pending">待确认</option></select><button id="addPayment">登记收款</button></div></div></details>
+  <details class="commercial-group"><summary>广告排期 <small>按日期查看投放安排</small></summary><div class="group-body"><div id="adCalendar"></div></div></details>
+  <details class="commercial-group"><summary>内容库与 Hash 去重 <small>避免重复内容</small></summary><div class="group-body"><div id="contentItems"></div><div class="row compact-row"><input id="contentTitle" placeholder="标题"><input id="contentCategory" placeholder="分类"><input id="contentTags" placeholder="标签，逗号分隔"></div><textarea id="contentBody" placeholder="输入内容，系统会自动计算 Hash 并检测重复"></textarea><button id="addContent">保存内容</button></div></details></div></section><section id="audit" class="page hidden"><div class="card"><h2>操作审计</h2><div id="auditList"></div></div></section>
 <section id="admins" class="page hidden"><div class="card"><h2>管理员</h2><div id="adminList"></div>
 <div class="row" style="margin-top:15px"><input id="adminId" placeholder="Telegram numeric user ID"><select id="adminRole"><option value="viewer">viewer</option><option value="editor">editor</option><option value="owner">owner</option></select><button id="addAdmin">添加/更新</button></div></div></section>
 </main>
