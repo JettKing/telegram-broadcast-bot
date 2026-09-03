@@ -29,7 +29,7 @@ async function api(request,env,uid,path,body){
   if(path==="/bot/menu"&&request.method==="POST"){
     if(await v25Role(env,uid)!=="owner")return json({error:"仅 owner 可配置 Bot 菜单"},403);
     const menuUrl=new URL(request.url).origin+"/admin";
-    const result=await tg(env,"setChatMenuButton",{menu_button:{type:"web_app",text:"管理后台",web_app:{url:menuUrl}}});
+    const result=await tg(env,"setChatMenuButton",{menu_button:{type:"web_app",text:"控制台",web_app:{url:menuUrl}}});
     await audit(env,uid,"set_bot_menu","bot",null,menuUrl);
     return json({ok:true,menu_url:menuUrl,result});
   }
