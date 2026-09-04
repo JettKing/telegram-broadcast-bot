@@ -1606,8 +1606,16 @@ $("#publishNow").onclick=async()=>{
 }
 
 $("#scheduleBtn").onclick=async()=>{
-  if(!$("#scheduledAt").value){
-    toast("请选择时间");
+  const scheduledInput=$("#scheduledAt");
+  if(!scheduledInput.value){
+    const advanced=scheduledInput.closest("details");
+    if(advanced)advanced.open=true;
+    scheduledInput.scrollIntoView({behavior:"smooth",block:"center"});
+    scheduledInput.focus({preventScroll:true});
+    try{
+      if(typeof scheduledInput.showPicker==="function")scheduledInput.showPicker();
+      else scheduledInput.click();
+    }catch(_){scheduledInput.click()}
     return
   }
 
