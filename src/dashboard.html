@@ -872,6 +872,7 @@ nav button.menu-item{position:relative;display:flex;align-items:center;gap:11px;
 @media(max-width:900px){.broadcast-settings .channel-picker .check,.broadcast-settings .compact-fold .date-setting,.broadcast-settings .compact-fold>.check{display:flex;align-items:center;width:100%;max-width:100%;min-width:0;height:76px;min-height:76px;box-sizing:border-box;margin:10px 0 0;padding:10px 11px;border-radius:14px;background:rgba(255,255,255,.55);border:1px solid rgba(174,198,222,.42);color:#5b7488;font-weight:500}.broadcast-settings .compact-fold .date-setting{flex-direction:column;align-items:stretch;justify-content:center;gap:6px}.broadcast-settings .compact-fold .date-setting>span{display:block;width:100%;margin:0;color:#5b7488;font-size:12px;font-weight:600;line-height:1.4}.broadcast-settings .compact-fold .date-setting input#scheduledAt{display:block;align-self:stretch;width:100%!important;max-width:100%!important;min-width:0!important;min-inline-size:0!important;height:44px;box-sizing:border-box!important;margin:0!important;padding:10px!important;border:0!important;border-radius:10px!important;background:rgba(255,255,255,.72)!important}.broadcast-settings .compact-fold>.check{margin-top:10px}.broadcast-settings .compact-fold>.check input[type="checkbox"]{width:auto!important;max-width:none!important;min-width:0!important;flex:none;margin:0 8px 0 0;padding:0}}
 @media(max-width:900px){.broadcast-settings .channel-picker .check,.broadcast-settings .compact-fold>.check{height:44px!important;min-height:44px!important;margin:10px 0 0!important;padding:10px 11px!important;box-sizing:border-box!important;border-radius:14px!important}.broadcast-settings .compact-fold input#scheduledAt{height:44px!important;min-height:44px!important;margin:0!important;padding:10px!important;box-sizing:border-box!important;border-radius:14px!important}}
 @media(max-width:900px){.broadcast-settings input#scheduledAt{text-align:center}.broadcast-settings input#scheduledAt::-webkit-datetime-edit{text-align:center}.broadcast-settings input#scheduledAt::-webkit-datetime-edit-fields-wrapper{display:flex;justify-content:center;width:100%}.broadcast-settings input#scheduledAt::-webkit-date-and-time-value{text-align:center}}
+@media(max-width:900px){.scheduled-input-wrap{position:relative;width:100%;max-width:100%;min-width:0;height:44px}.scheduled-input-wrap input#scheduledAt{position:relative;z-index:1;width:100%!important;height:44px!important;color:transparent!important;caret-color:transparent!important;text-align:center;cursor:pointer}.scheduled-input-wrap input#scheduledAt::-webkit-datetime-edit,.scheduled-input-wrap input#scheduledAt::-webkit-date-and-time-value{color:transparent!important}.scheduled-input-wrap input#scheduledAt::-webkit-calendar-picker-indicator{opacity:0}.scheduled-input-wrap #scheduledAtDisplay{position:absolute;z-index:2;inset:0;display:flex;align-items:center;justify-content:center;padding:0 12px;color:#172033;font-size:14px;line-height:1;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
 </style>
 </head>
 <body>
@@ -990,7 +991,10 @@ nav button.menu-item{position:relative;display:flex;align-items:center;gap:11px;
           <summary>高级发布设置</summary>
 
           <label>发布时间</label>
-          <input id="scheduledAt" type="datetime-local">
+          <div class="scheduled-input-wrap">
+            <input id="scheduledAt" type="datetime-local" aria-label="发布时间">
+            <span id="scheduledAtDisplay">请选择时间</span>
+          </div>
 
           <label class="check">
             <input id="pin" type="checkbox">
@@ -1541,6 +1545,18 @@ $("#addButton").onclick=()=>{
 
   $("#buttons").appendChild(d)
 }
+
+function updateScheduledDisplay(){
+  const input=$("#scheduledAt"), display=$("#scheduledAtDisplay");
+  if(!input||!display)return;
+  const value=input.value||"";
+  if(!value){display.textContent="请选择时间";return}
+  const parts=value.split("T"), date=(parts[0]||"").split("-").map(Number), time=parts[1]||"";
+  display.textContent=date.length===3&&date.every(Number.isFinite)?`${date[0]}年${date[1]}月${date[2]}日 ${time}`:value;
+}
+$("#scheduledAt")?.addEventListener("input",updateScheduledDisplay);
+$("#scheduledAt")?.addEventListener("change",updateScheduledDisplay);
+updateScheduledDisplay();
 
 async function create(status){
   const targets=$$("#targetChannels input:checked").map(x=>x.value);
