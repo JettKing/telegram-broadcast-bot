@@ -27,7 +27,7 @@ main{padding:28px;max-width:1500px;width:100%}
 .stats b{font-size:24px;display:block;margin-bottom:5px}
 .muted{color:#6b7280}
 .panel{margin-top:18px}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.top-actions{display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;gap:10px}.top-actions button{flex:1 1 0;min-width:0;white-space:nowrap}
 .editor{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:18px}
 textarea{width:100%;min-height:280px;border:1px solid #dbe2ea;border-radius:12px;padding:15px;resize:vertical}
 input,select{width:100%;padding:11px;border:1px solid #dbe2ea;border-radius:10px;background:#fff}
@@ -880,10 +880,6 @@ nav button.menu-item{position:relative;display:flex;align-items:center;gap:11px;
 <aside id="sideMenu">
   <div class="brand">
     <div class="brand-mark">📢</div>
-    <div class="brand-copy">
-      <strong>徐胖虎资源社</strong>
-      <small>Broadcast Console</small>
-    </div>
     <span class="brand-dot"></span>
   </div>
 
@@ -922,7 +918,7 @@ nav button.menu-item{position:relative;display:flex;align-items:center;gap:11px;
       </div>
     </div>
 
-    <div class="row">
+    <div class="row top-actions">
       <button class="secondary" id="refresh">刷新</button>
       <button class="danger" onclick="location.href='/admin/logout'">退出登录</button>
     </div>
