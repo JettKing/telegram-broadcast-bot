@@ -5,14 +5,12 @@ compatibility_date = "2026-09-03"
 [vars]
 TIMEZONE = "Asia/Shanghai"
 DASHBOARD_TITLE = "徐胖虎资源社｜广播控制台"
+ADMIN_USER_ID = "6092237879"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "xph-broadcast-db"
 database_id = "b2a963b5-7baa-49bc-8ee2-ba5f3495e141"
-
-# First deployment: set this to your Telegram numeric user ID.
-ADMIN_USER_ID = "6092237879"
 
 [triggers]
 crons = ["* * * * *"]
