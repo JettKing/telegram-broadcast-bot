@@ -10,10 +10,11 @@
 npx wrangler d1 migrations apply DB --remote
 ```
 
-当前 migrations 目录只有：
+当前 migrations 目录包括：
 
 ```text
 0001_v28.sql
+0002_scheduled_broadcast_silent.sql
 ```
 
 ### 功能
@@ -43,12 +44,18 @@ npx wrangler d1 migrations apply DB --remote
 3. 将 `ADMIN_USER_ID` 改成你的 Telegram 数字用户 ID
 4. 创建 R2 Bucket：`xph-broadcast-media`
 5. 设置 `BOT_TOKEN` 与 `ADMIN_WEB_TOKEN`
-6. 执行 D1 migration
-7. 部署 Worker
+6. 执行 D1 migration（按 Wrangler migration 顺序执行）
+7. 通过 GitHub Actions 的 Worker 发布工作流部署 Worker
 
 ### 版本原则
 
 V2.8 是当前正式运营版本。后续只处理 Bug、安全、部署、性能和已有功能维护，不继续为了版本号堆功能。
+
+## 部署约定
+
+- `.github/workflows/deploy.yml` 在 `main` 更新时运行 `npm ci`、源码检查和 Wrangler 部署；生产环境应在 GitHub Environment 中配置 Cloudflare Secrets。
+- `pages.yml` 发布的是 GitHub Pages 静态站点，不等同于 Cloudflare Pages。
+- 定时文本广播使用 D1 中保存的正文，通过 Telegram `sendMessage` 发布；来源消息型广播才使用 `copyMessage`。
 
 
 ## V2.8 R2 可选模式

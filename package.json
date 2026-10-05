@@ -6,6 +6,7 @@
   "scripts":{
     "dev":"wrangler dev",
     "deploy":"wrangler deploy",
+    "check":"node --check src/index.js",
     "db:migrate:remote":"wrangler d1 migrations apply DB --remote",
     "db:migrate:local":"wrangler d1 migrations apply DB --local"
   },
