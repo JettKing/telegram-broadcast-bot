@@ -20,6 +20,7 @@ npx wrangler d1 migrations apply DB --remote
 ### 功能
 
 - Telegram 广播
+- Telegram WebApp 管理员登录（服务端校验 `initData`；网页 Token 仅作应急入口）
 - 草稿 / 排期 / 历史
 - 多频道
 - URL 按钮
@@ -46,6 +47,12 @@ npx wrangler d1 migrations apply DB --remote
 5. 设置 `BOT_TOKEN` 与 `ADMIN_WEB_TOKEN`
 6. 执行 D1 migration（按 Wrangler migration 顺序执行）
 7. 通过 GitHub Actions 的 Worker 发布工作流部署 Worker
+
+### 管理员登录
+
+从 Telegram Bot 的「控制台」菜单或 `/start` 消息打开后台时，登录页会使用 Telegram WebApp `initData` 完成身份验证，并根据 Telegram User ID 查询 `admins` 表权限。不要让用户手动填写 Telegram ID；Telegram ID 只有在服务端验证签名后才可信。
+
+网页 `ADMIN_WEB_TOKEN` 登录仍保留为应急维护入口。Telegram WebApp 登录依赖 Worker 中已有的 `BOT_TOKEN`，不需要新增 Secret。
 
 ### 版本原则
 

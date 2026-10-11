@@ -352,10 +352,68 @@ async function v24LoginPage(env){
   await env.DB.prepare("DELETE FROM web_nonces WHERE created_at < datetime('now','-15 minutes')").run();
   await env.DB.prepare("DELETE FROM web_sessions WHERE expires_at <= ?").bind(now()).run();
   await env.DB.prepare("INSERT INTO web_nonces(nonce) VALUES(?)").bind(nonce).run();
-  return html(`<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#eaf4ff"><title>徐胖虎资源社｜登录</title><style>
+  return html(`<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#eaf4ff"><script src="https://telegram.org/js/telegram-web-app.js"></script><title>徐胖虎资源社｜登录</title><style>
 *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color:#172033;background:radial-gradient(circle at 8% 0%,#dceeff 0,transparent 34%),radial-gradient(circle at 100% 70%,#eef3ff 0,transparent 38%),linear-gradient(180deg,#eaf4ff 0%,#f3f7ff 55%,#eef5ff 100%)}
 .shell{width:min(440px,100%)}.brand{text-align:center;margin-bottom:22px}.brand-mark{width:66px;height:66px;display:grid;place-items:center;margin:0 auto 14px;border-radius:21px;color:#fff;font-size:30px;background:linear-gradient(145deg,#5aa9ea,#2589e8);box-shadow:0 12px 24px #2589e82e}.brand h1{font-size:23px;letter-spacing:-.5px;margin:0 0 7px}.brand p{margin:0;color:#64748b;font-size:13px}.box{background:rgba(255,255,255,.76);border:1px solid rgba(255,255,255,.88);padding:28px;border-radius:28px;box-shadow:0 16px 42px rgba(72,113,158,.12),inset 0 1px 0 rgba(255,255,255,.78);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}.box-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}.box-head h2{margin:0;font-size:18px}.version{padding:5px 9px;border-radius:999px;background:rgba(22,119,255,.1);color:#1677ff;font-size:11px;font-weight:700}.hint{margin:0 0 18px;color:#64748b;font-size:13px;line-height:1.6}.field-label{display:block;margin:0 0 8px;font-size:13px;font-weight:700;color:#334155}.input-wrap{position:relative}.input-wrap input{padding-right:76px}.input-wrap button{position:absolute;right:7px;top:7px;width:auto;margin:0;min-height:34px;padding:5px 9px;border:0;background:#f1f5f9;color:#475569;font-size:12px;border-radius:8px}.input-wrap button:hover{background:#e2e8f0}.input-wrap input,input,button{font:inherit}input{width:100%;min-height:48px;padding:12px 13px;border:1px solid rgba(157,190,218,.5);border-radius:15px;background:rgba(255,255,255,.62);color:#172033;outline:0;transition:.2s}input:focus{border-color:#5aa9ea;box-shadow:0 0 0 4px rgba(37,137,232,.12);background:rgba(255,255,255,.86)}button.submit{width:100%;min-height:48px;margin-top:16px;border:0;border-radius:12px;background:#2589e8;color:#fff;font-weight:700;cursor:pointer;box-shadow:0 8px 16px #11182722;transition:transform .2s,box-shadow .2s}button.submit:hover{transform:translateY(-1px);box-shadow:0 12px 22px #1118272e}button.submit:active{transform:translateY(0)}.secure{display:flex;align-items:center;justify-content:center;gap:6px;margin:18px 0 0;color:#94a3b8;font-size:11px}.secure span{color:#10b981;font-size:14px}.foot{text-align:center;margin-top:18px;color:#94a3b8;font-size:11px}@media(max-width:480px){body{padding:16px}.box{padding:22px 18px;border-radius:20px}.brand{margin-bottom:18px}.brand h1{font-size:21px}}
-</style></head><body><div class="shell"><div class="brand"><div class="brand-mark">📢</div><h1>徐胖虎资源社</h1><p>频道内容发布与运营中心</p></div><div class="box"><div class="box-head"><h2>登录控制台</h2><span class="version">V2.8</span></div><p class="hint">请输入管理员 Web Token，进入广播、频道和商业运营管理。</p><form method="post" action="/admin/login"><input type="hidden" name="nonce" value="${nonce}"><label class="field-label" for="token">管理员 Web Token</label><div class="input-wrap"><input id="token" name="token" type="password" placeholder="输入你的访问 Token" autocomplete="current-password" required><button type="button" id="toggle" aria-label="显示或隐藏 Token">显示</button></div><button class="submit" type="submit">进入控制台</button></form><div class="secure"><span>●</span> 安全连接 · Token 不会保存到浏览器</div></div><div class="foot">徐胖虎资源社 · Broadcast Control Center</div></div><script>const i=document.getElementById("token"),b=document.getElementById("toggle");b.onclick=()=>{const show=i.type==="password";i.type=show?"text":"password";b.textContent=show?"隐藏":"显示"};</script></body></html>`);
+</style></head><body><div class="shell"><div class="brand"><div class="brand-mark">📢</div><h1>徐胖虎资源社</h1><p>频道内容发布与运营中心</p></div><div class="box"><div class="box-head"><h2>登录控制台</h2><span class="version">V2.8</span></div><p class="hint">从 Telegram Bot 打开本页面可直接使用 Telegram 身份登录；网页 Token 仅作为应急入口。</p><button id="telegramLogin" class="submit" type="button" hidden>使用 Telegram 登录</button><div id="telegramStatus" class="secure" hidden></div><form method="post" action="/admin/login"><input type="hidden" name="nonce" value="${nonce}"><label class="field-label" for="token">管理员 Web Token</label><div class="input-wrap"><input id="token" name="token" type="password" placeholder="输入你的访问 Token" autocomplete="current-password" required><button type="button" id="toggle" aria-label="显示或隐藏 Token">显示</button></div><button class="submit" type="submit">进入控制台</button></form><div class="secure"><span>●</span> 安全连接 · Telegram 身份由服务端验证</div></div><div class="foot">徐胖虎资源社 · Broadcast Control Center</div></div><script>
+const i=document.getElementById("token"),b=document.getElementById("toggle");
+b.onclick=()=>{const show=i.type==="password";i.type=show?"text":"password";b.textContent=show?"隐藏":"显示"};
+const tgLogin=document.getElementById("telegramLogin"),tgStatus=document.getElementById("telegramStatus");
+const tgWebApp=window.Telegram?.WebApp;
+if(tgWebApp?.initData){
+  tgWebApp.ready();
+  tgLogin.hidden=false;
+  tgLogin.onclick=async()=>{
+    tgLogin.disabled=true;
+    tgStatus.hidden=false;
+    tgStatus.textContent="正在验证 Telegram 身份……";
+    try{
+      const r=await fetch("/admin/login/telegram",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({init_data:tgWebApp.initData})});
+      const d=await r.json();
+      if(!r.ok)throw Error(d.error||"Telegram 登录失败");
+      location.href="/admin";
+    }catch(e){
+      tgStatus.textContent=e.message;
+      tgLogin.disabled=false;
+    }
+  };
+}
+</script></body></html>`);
+}
+async function v24CreateSession(env,adminId){
+  const raw=crypto.randomUUID()+"."+crypto.randomUUID();
+  const csrf=crypto.randomUUID();
+  const h=await v24Sha256(raw);
+  const exp=new Date(Date.now()+8*60*60*1000).toISOString().slice(0,19).replace("T"," ");
+  await env.DB.prepare("INSERT INTO web_sessions(token_hash,admin_id,expires_at) VALUES(?,?,?)").bind(h,adminId,exp).run();
+  return {raw,csrf};
+}
+function v24Hex(bytes){return [...new Uint8Array(bytes)].map(x=>x.toString(16).padStart(2,"0")).join("")}
+async function v24Hmac(key,data){
+  const k=await crypto.subtle.importKey("raw",key,{name:"HMAC",hash:"SHA-256"},false,["sign"]);
+  return crypto.subtle.sign("HMAC",k,data);
+}
+function v24Equal(a,b){
+  if(a.length!==b.length)return false;
+  let n=0;for(let i=0;i<a.length;i++)n|=a.charCodeAt(i)^b.charCodeAt(i);
+  return n===0;
+}
+async function v24VerifyTelegramInitData(initData,botToken){
+  if(!initData||!botToken)return null;
+  const params=new URLSearchParams(initData), hash=params.get("hash");
+  if(!hash)return null;
+  const pairs=[];for(const [k,v] of params.entries())if(k!=="hash")pairs.push(`${k}=${v}`);
+  pairs.sort();
+  const enc=new TextEncoder();
+  const secret=await v24Hmac(enc.encode("WebAppData"),enc.encode(botToken));
+  const calculated=v24Hex(await v24Hmac(secret,enc.encode(pairs.join("\n"))));
+  if(!v24Equal(calculated,hash))return null;
+  const authDate=Number(params.get("auth_date")||0);
+  if(!Number.isSafeInteger(authDate)||Math.abs(Date.now()/1000-authDate)>86400)return null;
+  try{
+    const user=JSON.parse(params.get("user")||"{}");
+    return Number.isSafeInteger(user.id)&&user.id>0?user:null;
+  }catch{return null}
 }
 async function v24Login(request,env){
   const fd=await request.formData();
@@ -365,15 +423,22 @@ async function v24Login(request,env){
   await env.DB.prepare("DELETE FROM web_nonces WHERE nonce=?").bind(nonce).run();
   const a=await env.DB.prepare("SELECT user_id FROM admins WHERE enabled=1 ORDER BY user_id LIMIT 1").first();
   if(!a)return new Response("未配置管理员",{status:403});
-  const raw=crypto.randomUUID()+"."+crypto.randomUUID();
-  const csrf=crypto.randomUUID();
-  const h=await v24Sha256(raw);
-  const exp=new Date(Date.now()+8*60*60*1000).toISOString().slice(0,19).replace("T"," ");
-  await env.DB.prepare("INSERT INTO web_sessions(token_hash,admin_id,expires_at) VALUES(?,?,?)").bind(h,a.user_id,exp).run();
+  const session=await v24CreateSession(env,a.user_id);
   const headers=new Headers({location:"/admin"});
-  headers.append("Set-Cookie",v24Cookie(raw,28800));
-  headers.append("Set-Cookie",v24CsrfCookie(csrf,28800));
+  headers.append("Set-Cookie",v24Cookie(session.raw,28800));
+  headers.append("Set-Cookie",v24CsrfCookie(session.csrf,28800));
   return new Response("",{status:302,headers});
+}
+async function v24TelegramLogin(request,env){
+  let body={};try{body=await request.json()}catch{return json({error:"请求格式无效"},400)}
+  const user=await v24VerifyTelegramInitData(String(body.init_data||""),env.BOT_TOKEN);
+  if(!user)return json({error:"Telegram 身份验证失败或已过期"},401);
+  if(!await isAdmin(env,user.id))return json({error:"该 Telegram 账号未授权"},403);
+  const session=await v24CreateSession(env,user.id);
+  const headers=new Headers({"content-type":"application/json; charset=utf-8"});
+  headers.append("Set-Cookie",v24Cookie(session.raw,28800));
+  headers.append("Set-Cookie",v24CsrfCookie(session.csrf,28800));
+  return new Response(JSON.stringify({ok:true,user_id:user.id}),{status:200,headers});
 }
 
 
@@ -435,6 +500,7 @@ export default {
   }
   if(u.pathname==="/admin/login"&&request.method==="GET")return v24LoginPage(env);
   if(u.pathname==="/admin/login"&&request.method==="POST")return v24Login(request,env);
+  if(u.pathname==="/admin/login/telegram"&&request.method==="POST")return v24TelegramLogin(request,env);
   if(u.pathname==="/admin/logout"){
     const raw=request.headers.get("Cookie")?.match(/xph_session=([^;]+)/)?.[1];
     if(raw)await env.DB.prepare("DELETE FROM web_sessions WHERE token_hash=?").bind(await v24Sha256(raw)).run();
